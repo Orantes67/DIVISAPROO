@@ -1,0 +1,56 @@
+<div class="p-8 bg-gray-100 min-h-screen">
+  <!-- 🔹 Navegación superior -->
+  <div class="flex flex-wrap gap-3 mb-6 justify-center md:justify-start">
+    <button
+      class="bg-blue-600 text-white px-4 py-2 rounded-full shadow-md hover:bg-blue-700 transition"
+      (click)="irA('/')"
+    >
+      🏠 Inicio
+    </button>
+    <button
+      class="bg-blue-600 text-white px-4 py-2 rounded-full shadow-md hover:bg-blue-700 transition"
+      (click)="irA('/transacciones')"
+    >
+      💰 Transacciones
+    </button>
+    <button
+      class="bg-blue-600 text-white px-4 py-2 rounded-full shadow-md hover:bg-blue-700 transition"
+      (click)="irA('/conversor')"
+    >
+      💱 Conversor
+    </button>
+    <button
+      class="bg-blue-600 text-white px-4 py-2 rounded-full shadow-md hover:bg-blue-700 transition"
+      (click)="irA('/analisis')"
+    >
+      📈 Análisis
+    </button>
+    <button
+      class="bg-blue-600 text-white px-4 py-2 rounded-full shadow-md hover:bg-blue-700 transition"
+      (click)="irA('/configuracion')"
+    >
+      ⚙️ Configuración
+    </button>
+  </div>
+
+  <!-- 🔹 Contenido principal -->
+  <h1 class="text-3xl font-bold text-blue-700 mb-4">Resumen de Cartera</h1>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Tarjeta de Saldo -->
+    <div class="bg-blue-600 text-white rounded-2xl p-6 shadow-md">
+      <h2 class="text-lg">Saldo Total</h2>
+      <p class="text-4xl font-bold mt-2">
+        {{ cartera?.saldo_total | currency:cartera?.moneda_base }}
+      </p>
+      <p class="text-sm mt-2">Moneda base: {{ cartera?.moneda_base }}</p>
+    </div>
+
+    <!-- Gráfico -->
+    <div class="bg-white rounded-2xl p-6 shadow-md col-span-2">
+      <h2 class="text-lg font-semibold">Tipo de cambio actual</h2>
+      <p class="text-2xl mt-2">{{ tasaCambio }}</p>
+      <canvas id="saldoChart" class="mt-4"></canvas>
+    </div>
+  </div>
+</div>

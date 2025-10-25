@@ -1,0 +1,122 @@
+<div class="p-8 bg-gray-100 min-h-screen">
+  <h1 class="text-2xl font-bold mb-4 text-blue-700">Transacciones</h1>
+
+  <!-- Botón para abrir/cerrar formulario -->
+  <button
+    class="bg-blue-600 text-white px-4 py-2 rounded-lg mb-6 hover:bg-blue-700 transition"
+    (click)="abrirFormulario()"
+  >
+    {{ mostrarFormulario ? 'Cerrar formulario' : '+ Nueva Transacción' }}
+  </button>
+
+  <!-- Formulario -->
+  <div *ngIf="mostrarFormulario" class="bg-white p-6 rounded-xl shadow-md mb-6">
+    <h2 class="text-lg font-semibold mb-3 text-blue-700">Nueva Transacción</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">Tipo</label>
+        <select
+          [(ngModel)]="nuevaTransaccion.tipo"
+          class="border p-2 rounded w-full"
+        >
+          <option value="">Selecciona...</option>
+          <option value="ingreso">Ingreso</option>
+          <option value="egreso">Egreso</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-1">Divisa</label>
+        <input
+          [(ngModel)]="nuevaTransaccion.divisa"
+          placeholder="USD, EUR, MXN..."
+          class="border p-2 rounded w-full"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-1">Monto</label>
+        <input
+          [(ngModel)]="nuevaTransaccion.monto"
+          type="number"
+          class="border p-2 rounded w-full"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-1">Descripción</label>
+        <input
+          [(ngModel)]="nuevaTransaccion.descripcion"
+          class="border p-2 rounded w-full"
+        />
+      </div>
+    </div>
+
+    <div class="flex gap-2">
+      <button
+        (click)="crear()"
+        class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+      >
+        Guardar
+      </button>
+      <button
+        (click)="abrirFormulario()"
+        class="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400 transition"
+      >
+        Cancelar
+      </button>
+    </div>
+  </div>
+
+  <!-- Listado -->
+  <div
+    *ngIf="!mostrarFormulario"
+    class="bg-white p-6 rounded-xl shadow-md"
+  >
+    <h2 class="text-lg font-semibold mb-4 text-blue-700">
+      Listado de Transacciones
+    </h2>
+
+    <table
+      *ngIf="transacciones.length > 0; else sinDatos"
+      class="w-full border-collapse border border-gray-200 text-sm"
+    >
+      <thead>
+        <tr class="bg-gray-100 text-left">
+          <th class="border p-2">Tipo</th>
+          <th class="border p-2">Monto</th>
+          <th class="border p-2">Divisa</th>
+          <th class="border p-2">Descripción</th>
+          <th class="border p-2 text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let t of transacciones"
+          class="hover:bg-gray-50 transition"
+        >
+          <td class="border p-2">{{ t.tipo }}</td>
+          <td class="border p-2">{{ t.monto }}</td>
+          <td class="border p-2">{{ t.divisa }}</td>
+          <td class="border p-2">{{ t.descripcion }}</td>
+          <td class="border p-2 text-center">
+            <button
+              (click)="eliminar(t.id_transaccion)"
+              class="text-red-600 hover:underline"
+            >
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Mensaje si no hay datos -->
+    <ng-template #sinDatos>
+      <p class="text-gray-500 text-center py-4">
+        No hay transacciones registradas todavía.
+      </p>
+    </ng-template>
+  </div>
+</div>
