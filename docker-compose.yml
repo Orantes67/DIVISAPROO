@@ -9,7 +9,7 @@ services:
     image: mysql:8.0
     container_name: db-mysql-hector
     ports:
-      - "3306:3306"
+      - "3307:3306"
     environment:
       MYSQL_ROOT_PASSWORD: hectorsoft2025
       MYSQL_DATABASE: hector_robles_orantes_db  # Nombre de tu BD con tu nombre
@@ -17,6 +17,7 @@ services:
       MYSQL_PASSWORD: hectororantessoft2025
     volumes:
       - db_data_mysql:/var/lib/mysql
+      - ./mysqlinit:/docker-entrypoint-initdb.d
     networks:
       - red-hector
     healthcheck:
@@ -30,7 +31,7 @@ services:
     build: ./API  # Ruta a tu carpeta donde está tu Dockerfile del backend
     container_name: hector-backend
     ports:
-      - "3001:3000"  # Puerto expuesto en tu máquina:contendor (3001 -> 3000)
+      - "3000:3000"  # Puerto expuesto en tu máquina:contendor (3001 -> 3000)
     environment:
       DB_HOST: db-mysql-hector
       DB_PORT: 3306

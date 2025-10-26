@@ -21,27 +21,28 @@ RUN npm install --legacy-peer-deps
 COPY . .
 
 # Construimos la aplicación para producción.
-# El resultado por defecto va a /app/dist/divisa-pro/
+# El resultado por defecto va a /app/dist/divisaPro/
+# Nota: La estructura moderna de Angular a menudo pone los archivos estáticos
+# dentro de un subdirectorio 'browser' dentro de 'dist/<project-name>'.
 RUN npm run build
 
 # --- Etapa 2: Servidor (Serve) ---
 # Usamos una imagen ligera de Node para el servidor final
 FROM node:20-slim
 # Establecemos el directorio de trabajo
-WORKDIR /usr/share/app-dist
+WORKDIR /app
 
 # Instalamos 'serve' globalmente para servir archivos estáticos
 RUN npm install -g serve
 
 # Copiamos SOLO los archivos estáticos construidos desde la etapa 'builder'.
-# La ruta ajustada es /app/dist/divisa-pro (basado en el nombre de tu proyecto)
+# La ruta ajustada es /app/dist/divisaPro (basado en el nombre de tu proyecto)
 COPY --from=builder /app/dist/divisa-pro ./
 
 # Expone el puerto 4200
 EXPOSE 4200
 
 # Comando para iniciar el servidor
-# -s : Indica modo SPA (Single Page App)
-# .  : Sirve el directorio actual (/usr/share/app-dist)
-# -l 4200 : Escucha en el puerto 4200
-CMD ["serve", "-s", ".", "-l", "4200"]
+# EL CAMBIO CLAVE ES AQUÍ: Se especifica el directorio 'browser' para servir
+# (-s indica modo SPA)
+CMD ["serve", "-s", "browser", "-l", "4200"]

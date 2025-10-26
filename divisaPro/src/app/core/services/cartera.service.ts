@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Cartera } from '../models/cartera.model';
+import { environment } from '../../../../environment';
 import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class CarteraService {
-  private apiUrl = 'http://localhost:3000/carteras';
+  private apiUrl = `${environment.apiUrl}/carteras`;
 
   constructor(private http: HttpClient) {}
 
@@ -16,7 +17,7 @@ export class CarteraService {
   create(cartera: Cartera): Observable<Cartera> {
     return this.http.post<Cartera>(this.apiUrl, cartera);
   }
-  
+
     update(id: number, cartera: Cartera): Observable<Cartera> {
     return this.http.put<Cartera>(`${this.apiUrl}/${id}`, cartera);
   }

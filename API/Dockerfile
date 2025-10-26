@@ -2,7 +2,7 @@
 FROM node:20-slim
 
 # Establece el directorio de trabajo dentro del contenedor
-WORKDIR /usr/src/app
+WORKDIR /app
 
 # Copia los archivos package.json y package-lock.json (si existe)
 # para aprovechar el cache de Docker y acelerar las builds futuras
@@ -21,4 +21,4 @@ EXPOSE 3000
 ENV PORT=3000
 
 # Comando para ejecutar la aplicación
-CMD [ "node", "server.js" ]
+CMD [ "node", "server.js", "0.0.0.0", "3000", "--trace-warnings" ]
