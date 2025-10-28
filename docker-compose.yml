@@ -9,7 +9,7 @@ services:
     image: mysql:8.0
     container_name: db-mysql-hector
     ports:
-      - "3307:3306"
+      - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: hectorsoft2025
       MYSQL_DATABASE: hector_robles_orantes_db  # Nombre de tu BD con tu nombre
