@@ -245,5 +245,3 @@ curl "http://localhost:3000/transacciones/convertir-divisa?from=USD&to=EUR&amoun
 3. Actualiza `mysqlinit/schema.sql` o agrega migraciones cuando cambies modelos.
 
 ---
-
-Si quieres que genere el diagrama de secuencia en PlantUML para visualizar mejor el flujo de datos entre componentes, dímelo y lo agrego.
