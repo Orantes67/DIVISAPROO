@@ -6,6 +6,52 @@ Este repositorio contiene un backend en Express, un frontend en Angular y una ba
 
 ---
 
+## Arquitectura y Comunicación entre Servicios
+
+El proyecto sigue una arquitectura de microservicios con tres componentes principales:
+
+### 1. Frontend (Angular - Puerto 4200)
+- Single Page Application (SPA) que se comunica con el backend via HTTP.
+- Servicios Angular (`CarteraService`, `TransaccionService`, `FrankfurterService`) encapsulan la lógica de comunicación.
+- Utiliza Observables (RxJS) para manejar respuestas asíncronas.
+- Variables de entorno en `environment.ts` configuran la URL del backend.
+
+### 2. Backend (Express.js - Puerto 3000)
+- API RESTful que implementa Clean Architecture:
+  - Controllers: manejan HTTP request/response
+  - UseCases: implementan lógica de negocio
+  - Repositories: abstraen acceso a datos
+- Se comunica con MySQL para persistencia.
+- Implementa proxy para conversión de divisas (frankfurter).
+
+### 3. Base de Datos (MySQL - Puerto 3306)
+- Almacena carteras y transacciones.
+- Esquema inicializado por `mysqlinit/schema.sql`.
+- Conexión configurada via variables de entorno en el backend.
+
+### Comunicación y Flujo de Datos
+1. Cliente -> Frontend:
+   - Usuario interactúa con Angular UI
+   - Componentes llaman a servicios Angular
+
+2. Frontend -> Backend:
+   - Servicios Angular hacen HTTP requests
+   - Datos enviados como JSON
+   - Autenticación pendiente de implementar
+
+3. Backend -> Base de Datos:
+   - Conexión pool MySQL
+   - Transacciones ACID para operaciones críticas
+   - Consultas parametrizadas (evita SQL injection)
+
+### Docker y Orquestación
+- Red Docker `red-hector` permite comunicación entre contenedores
+- Healthcheck en MySQL asegura disponibilidad antes de iniciar backend
+- Volumen persistente para datos MySQL
+- Multi-stage build para frontend optimiza tamaño de imagen
+
+---
+
 ## Estructura principal
 
 - `API/` — Backend (Express.js)
@@ -33,18 +79,30 @@ Este repositorio contiene un backend en Express, un frontend en Angular y una ba
 En PowerShell (desde la raíz del proyecto):
 
 ```powershell
+# Construir imágenes y levantar contenedores en background
 docker-compose up --build -d
 
-# Ver logs del backend
+# Ver logs en tiempo real del backend
 docker-compose logs -f hector-backend
 
-# Parar y eliminar contenedores
+# Ver logs de un contenedor específico
+docker-compose logs -f [db-mysql-hector|hector-backend|hector-frontend]
+
+# Parar todos los contenedores
+docker-compose stop
+
+# Parar y eliminar contenedores, redes y volúmenes
 docker-compose down
+
+# Eliminar también volúmenes (borra datos persistentes)
+docker-compose down -v
 ```
 
 Notas importantes:
 - La base de datos MySQL se inicializa con `mysqlinit/schema.sql` la primera vez que se crea el contenedor.
 - Puertos por defecto: MySQL 3306, Backend 3000, Frontend 4200.
+- El backend espera a que MySQL esté healthy antes de iniciar (ver healthcheck en `docker-compose.yml`).
+- Los logs de la aplicación están disponibles via `docker-compose logs`.
 
 Credenciales (tal como están en `docker-compose.yml`):
 
@@ -74,7 +132,24 @@ npm install
 ng serve --host 0.0.0.0 --port 4200
 ```
 
-Asegúrate de que `environment.apiUrl` (en `divisaPro` o `environment.ts`) apunte al backend (ej. `http://localhost:3000`).
+Variables de entorno necesarias para desarrollo local:
+1. Backend (copiar `example.env` a `.env`):
+```
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=hector_robles_orantes_db
+DB_USER=hector_robles_orantes
+DB_PASS=hectororantessoft2025
+PORT=3000
+```
+
+2. Frontend (en `environment.ts`):
+```typescript
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:3000'
+};
+```
 
 ---
 
@@ -134,15 +209,6 @@ Asegúrate de que `environment.apiUrl` (en `divisaPro` o `environment.ts`) apunt
 
 ---
 
-## Variables de entorno (backend)
-
-- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS`
-- `PORT` (por ejemplo 3000)
-
-Frontend: ajustar `environment.apiUrl` en `divisaPro`.
-
----
-
 ## Pruebas manuales rápidas (smoke tests)
 
 1. Levantar con Docker Compose.
@@ -179,3 +245,5 @@ curl "http://localhost:3000/transacciones/convertir-divisa?from=USD&to=EUR&amoun
 3. Actualiza `mysqlinit/schema.sql` o agrega migraciones cuando cambies modelos.
 
 ---
+
+Si quieres que genere el diagrama de secuencia en PlantUML para visualizar mejor el flujo de datos entre componentes, dímelo y lo agrego.
