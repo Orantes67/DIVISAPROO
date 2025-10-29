@@ -3,28 +3,39 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-export async function getDBPool() {
-  try {
-    const pool = mysql.createPool({
-      host: process.env.DB_HOST,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASS,
-      database: process.env.DB_SCHEMA,
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0,
-    });
+async function connectWithRetry(retries = 10, delay = 5000) {
+  while (retries > 0) {
+    try {
+      console.log(`⏳ Intentando conectar a MySQL (${retries} intentos restantes)...`);
 
-    const connection = await pool.getConnection();
-    await connection.ping();
-    connection.release();
+      const pool = mysql.createPool({
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASS,
+        database: process.env.DB_SCHEMA,
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0,
+      });
 
-    console.log("✅ Conexión a MySQL establecida exitosamente.");
-    return pool;
-  } catch (err) {
-    console.error("❌ Error al conectar a la base de datos:", err.message);
-    return null;
+      const connection = await pool.getConnection();
+      await connection.ping();
+      connection.release();
+
+      console.log("✅ Conexión a MySQL establecida exitosamente.");
+      return pool;
+    } catch (err) {
+      console.error(`❌ Error al conectar a MySQL: ${err.message}`);
+      retries--;
+      if (retries === 0) throw new Error("❌ No se pudo conectar a la base de datos después de varios intentos.");
+      console.log(`🔁 Reintentando en ${delay / 1000} segundos...`);
+      await new Promise(res => setTimeout(res, delay));
+    }
   }
+}
+
+export async function getDBPool() {
+  return await connectWithRetry();
 }
 
 // Ejecutar consultas preparadas
@@ -33,7 +44,7 @@ export async function executePreparedQuery(pool, query, values = []) {
     const [result] = await pool.execute(query, values);
     return result;
   } catch (err) {
-    console.error("❌ Error al ejecutar consulta preparada:", err.message);
+    console.error("❌ Error al ejecutar consulta preparada:", err.message)
     throw err;
   }
 }
