@@ -20,10 +20,10 @@ services:
     networks:
       - red-hector
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -phectorsoft2025 || exit 1"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -phectorsoft2025"]
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 5
 
   # --- 2. Backend (Express.js) ---
   hector-backend:
@@ -33,15 +33,10 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - ./API/.env
+      - ./API/.env   # Cargar variables desde el archivo .env del backend
     depends_on:
       db-mysql-hector:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "nc -z localhost 3000 || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     networks:
       - red-hector
 
@@ -53,10 +48,7 @@ services:
     ports:
       - "4200:4200"
     depends_on:
-      hector-backend:
-        condition: service_healthy
-    environment:
-      - NODE_ENV=production
+      - hector-backend
     networks:
       - red-hector
 
