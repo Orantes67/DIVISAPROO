@@ -26,25 +26,24 @@ services:
       retries: 10
 
   # --- 2. Backend (Express.js) ---
-  hector-backend:
+    hector-backend:
     build: ./API
     container_name: hector-backend
     restart: always
     ports:
       - "3000:3000"
     env_file:
-      - ./API/.env  # Se cargarán las variables desde este archivo
+      - ./API/.env
     depends_on:
       db-mysql-hector:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
+      test: ["CMD-SHELL", "nc -z localhost 3000 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - red-hector
-
   # --- 3. Frontend (Angular) ---
   hector-frontend:
     build: ./divisaPro
