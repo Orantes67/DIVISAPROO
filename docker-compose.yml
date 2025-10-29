@@ -1,18 +1,17 @@
 # Versión de la sintaxis de Docker Compose
 version: '3.8'
 
-# Definición de los 3 servicios (contenedores)
 services:
-
   # --- 1. Base de Datos (MySQL) ---
   db-mysql-hector:
     image: mysql:8.0
     container_name: db-mysql-hector
+    restart: always
     ports:
       - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: hectorsoft2025
-      MYSQL_DATABASE: hector_robles_orantes_db  # Nombre de tu BD con tu nombre
+      MYSQL_DATABASE: hector_robles_orantes_db
       MYSQL_USER: hector_robles_orantes
       MYSQL_PASSWORD: hectororantessoft2025
     volumes:
@@ -21,24 +20,20 @@ services:
     networks:
       - red-hector
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -phectorsoft2025"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   # --- 2. Backend (Express.js) ---
   hector-backend:
-    build: ./API  # Ruta a tu carpeta donde está tu Dockerfile del backend
+    build: ./API
     container_name: hector-backend
+    restart: always
     ports:
-      - "3000:3000"  # Puerto expuesto en tu máquina:contendor (3001 -> 3000)
-    environment:
-      DB_HOST: db-mysql-hector
-      DB_PORT: 3306
-      DB_NAME: hector_robles_orantes_db
-      DB_USER: hector_robles_orantes
-      DB_PASS: hectororantessoft2025
-      PORT: 3000
+      - "3000:3000"
+    env_file:
+      - ./API/.env   # Cargar variables desde el archivo .env del backend
     depends_on:
       db-mysql-hector:
         condition: service_healthy
@@ -47,21 +42,22 @@ services:
 
   # --- 3. Frontend (Angular) ---
   hector-frontend:
-    build: ./divisaPro  # Cambia si tu carpeta tiene otro nombre
+    build: ./divisaPro
     container_name: hector-frontend
+    restart: always
     ports:
-      - "4200:4200"  # Angular usa 4200 por defecto
+      - "4200:4200"
     depends_on:
       - hector-backend
     networks:
       - red-hector
 
-# --- Definición de Volúmenes ---
+# --- Volúmenes persistentes ---
 volumes:
   db_data_mysql:
     driver: local
 
-# --- Definición de Redes ---
+# --- Red compartida entre servicios ---
 networks:
   red-hector:
     driver: bridge
